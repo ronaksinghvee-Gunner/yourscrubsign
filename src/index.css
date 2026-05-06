@@ -373,3 +373,19 @@
   /* Keep gold accents intact (no override needed for .text-gold, .bg-gold, .border-gold) */
 }
 
+
+/* =====================================================================
+   STORE PAGE — alternating sections, row hover
+   ===================================================================== */
+@layer utilities {
+  .store-section { --store-row-border: rgba(255,255,255,0.06); }
+  .store-section-a { background-color: #0D0D1A; }
+  .store-section-b { background-color: #111128; }
+  .store-row { transition: background-color 150ms ease; }
+  .store-row:hover { background-color: rgba(200,169,110,0.04); }
+
+  body.light-mode .store-section { --store-row-border: rgba(26,26,46,0.08); }
+  body.light-mode .store-section-a { background-color: #F5EFE0 !important; }
+  body.light-mode .store-section-b { background-color: #EDE8DC !important; }
+  body.light-mode .store-row:hover { background-color: rgba(200,169,110,0.08); }
+}

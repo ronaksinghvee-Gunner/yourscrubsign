@@ -53,6 +53,27 @@ export type Database = {
         }
         Relationships: []
       }
+      store_interest: {
+        Row: {
+          category: string
+          created_at: string
+          email: string
+          id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          email: string
+          id?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          email?: string
+          id?: string
+        }
+        Relationships: []
+      }
       subscribers: {
         Row: {
           created_at: string
