@@ -76,8 +76,8 @@ const Index = () => {
 
       {/* HERO */}
       <section className="relative min-h-screen flex flex-col justify-center px-5 md:px-8 pt-24 pb-16 overflow-hidden">
-        <div className="constellation-bg absolute inset-0 opacity-[0.04] pointer-events-none" />
-        <div className="relative max-w-4xl mx-auto w-full text-center">
+        <NightSky />
+        <div className="relative max-w-4xl mx-auto w-full text-center" style={{ zIndex: 1 }}>
           <h1 className="font-display text-5xl md:text-7xl leading-[1.05] tracking-tight fade-up">
             What the <span className="text-gold italic">stars</span> say<br className="hidden md:block" /> about your shift.
           </h1>
