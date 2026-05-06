@@ -1,29 +1,28 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 
-type Product = { name: string; line: string };
-type Category = {
+type CategoryTag = "between-shifts" | "affirmation-tools" | "wear-the-shift";
+
+type Section = {
   number: string;
   title: string;
   description: string;
-  tag: "between-shifts" | "affirmation-tools" | "wear-the-shift";
-  products: Product[];
+  tag: CategoryTag;
+  body: string[];
 };
 
-const categories: Category[] = [
+const sections: Section[] = [
   {
     number: "01",
     title: "Between Shifts",
     description: "For the shifts that don't leave you when you get home.",
     tag: "between-shifts",
-    products: [
-      { name: "Grounding Stone Set", line: "For the shifts that don't leave you when you get home." },
-      { name: "Pocket Reset Stone", line: "Keep it in your scrub pocket. You'll know when to reach for it." },
-      { name: "Night Shift Reset Kit", line: "A small reset, before you try to sleep." },
-      { name: "End-of-Shift Card", line: "Take a breath. You're allowed to leave today behind." },
+    body: [
+      "Things you reach for without thinking.",
+      "Something small to hold. Something to slow things down. Something that reminds you you're allowed to leave the day behind.",
+      "We're working on it.",
     ],
   },
   {
@@ -31,11 +30,10 @@ const categories: Category[] = [
     title: "Affirmation Tools",
     description: "Small reminders that meet you where you are.",
     tag: "affirmation-tools",
-    products: [
-      { name: "Shift Affirmation Cards", line: "You did enough today." },
-      { name: "Pre-Shift Card", line: "Before you walk in again." },
-      { name: "Still Showing Up Card", line: "Even when it's hard, you're still here." },
-      { name: "5-Minute Reset Card", line: "You don't need an hour. Just take five." },
+    body: [
+      "Not the kind that feel forced.",
+      "The kind that sound like something you'd actually say to yourself. On the hard days. On the quiet ones.",
+      "Nothing overdone. Just enough.",
     ],
   },
   {
@@ -43,126 +41,144 @@ const categories: Category[] = [
     title: "Wear the Shift",
     description: "Wear what the shift feels like.",
     tag: "wear-the-shift",
-    products: [
-      { name: "Crewneck", line: "Still showing up." },
-      { name: "Crewneck", line: "Running on spite." },
-      { name: "Hoodie", line: "For the days you don't want to explain anything." },
-      { name: "Tote Bag", line: "You've been carrying a lot." },
+    body: [
+      "Things that don't need explaining.",
+      "If you know, you know. And if you don't, that's kind of the point.",
+      "Simple. Quiet. Familiar.",
     ],
   },
 ];
 
-const NotifyForm = ({ category }: { category: Category["tag"] }) => {
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [done, setDone] = useState(false);
-  const { toast } = useToast();
+const getSessionId = (): string => {
+  const key = "scrubsigns-session";
+  let id = sessionStorage.getItem(key);
+  if (!id) {
+    id = crypto.randomUUID();
+    sessionStorage.setItem(key, id);
+  }
+  return id;
+};
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const trimmed = email.trim();
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(trimmed) || trimmed.length > 254) {
-      toast({ title: "Enter a valid email", variant: "destructive" });
+const InterestLink = ({ category }: { category: CategoryTag }) => {
+  const flagKey = `scrubsigns-interest-${category}`;
+  const [noted, setNoted] = useState(false);
+
+  useEffect(() => {
+    if (sessionStorage.getItem(flagKey)) setNoted(true);
+  }, [flagKey]);
+
+  const handleClick = async () => {
+    if (noted) return;
+    if (sessionStorage.getItem(flagKey)) {
+      setNoted(true);
       return;
     }
-    setLoading(true);
-    const { error } = await supabase.from("store_interest").insert({ email: trimmed, category });
-    setLoading(false);
-    if (error) {
-      toast({ title: "Something went wrong", description: "Try again in a moment.", variant: "destructive" });
-      return;
-    }
-    setDone(true);
-    setEmail("");
+    const session_id = getSessionId();
+    const storedEmail = localStorage.getItem("scrubsigns-email");
+    const email =
+      storedEmail && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(storedEmail) ? storedEmail : null;
+
+    sessionStorage.setItem(flagKey, "1");
+    setNoted(true);
+
+    await supabase.from("store_interest").insert({
+      category,
+      session_id,
+      email,
+    } as never);
   };
 
-  if (done) {
+  if (noted) {
     return (
-      <p className="mt-10 text-sm italic text-muted-foreground">
-        We'll let you know the moment it's ready.
-      </p>
+      <span className="inline-block mt-8 font-sans text-[13px] text-muted-foreground transition-opacity duration-500">
+        Noted.
+      </span>
     );
   }
 
   return (
-    <form onSubmit={submit} className="mt-10 flex flex-col sm:flex-row gap-3 max-w-xl">
-      <input
-        type="email"
-        required
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Notify me when it's ready"
-        className="flex-1 bg-transparent border border-border px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-gold transition-colors"
-      />
-      <button
-        type="submit"
-        disabled={loading}
-        className="bg-gold hover:bg-gold-hover text-primary-foreground text-[11px] tracking-[0.18em] uppercase px-6 py-3 transition-colors disabled:opacity-60"
-      >
-        {loading ? "Sending" : "Let me know"}
-      </button>
-    </form>
+    <button
+      type="button"
+      onClick={handleClick}
+      className="group inline-flex items-center gap-2 mt-8 font-sans text-[13px] text-gold hover:text-gold-hover cursor-pointer transition-colors"
+    >
+      <span className="group-hover:underline underline-offset-4">I'd want this.</span>
+      <span aria-hidden className="transition-transform group-hover:translate-x-0.5">→</span>
+    </button>
   );
 };
 
 const Store = () => (
   <>
     <Nav />
-    <main className="pt-32 pb-20">
-      <header className="text-center px-5 md:px-8 max-w-3xl mx-auto mb-20 fade-up">
-        <h1 className="font-display text-[42px] md:text-6xl leading-tight">The Scrub Signs Shop</h1>
-        <p className="text-muted-foreground mt-4 italic text-base md:text-lg">
+    <main className="pt-32 pb-24">
+      <header className="text-center px-6 max-w-2xl mx-auto fade-up">
+        <h1 className="font-display text-[40px] md:text-[48px] leading-tight">
+          The Scrub Signs Shop
+        </h1>
+        <p className="font-sans text-[14px] md:text-[16px] text-muted-foreground mt-4">
           Things for the night shift soul.
         </p>
-        <p className="text-muted-foreground/70 mt-3 text-xs md:text-sm">
-          Everything here is coming soon. We're building it the right way.
+        <p className="font-sans text-[11px] md:text-[13px] text-muted-foreground/60 mt-3 italic">
+          We're building this slowly. The right way.
         </p>
+        <div
+          className="mx-auto mt-12 h-px w-24"
+          style={{ background: "rgba(200,169,110,0.2)" }}
+        />
       </header>
 
-      {categories.map((cat, i) => (
-        <section
-          key={cat.tag}
-          data-store-section={i % 2 === 0 ? "a" : "b"}
-          className={`store-section ${i % 2 === 0 ? "store-section-a" : "store-section-b"} relative px-5 md:px-8 py-[68px] md:py-20`}
-        >
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center md:text-left mb-10">
-              <p className="text-[10px] tracking-[0.25em] uppercase text-muted-foreground mb-4">
-                Category {cat.number}
+      <div className="mt-4">
+        {sections.map((s, i) => (
+          <section
+            key={s.tag}
+            className={`store-section ${i % 2 === 0 ? "store-section-a" : "store-section-b"} px-12 md:px-8 py-[68px] md:py-[100px]`}
+          >
+            <div className="max-w-[680px] mx-auto text-center md:text-left">
+              <p className="font-sans text-[10px] tracking-[0.2em] uppercase text-muted-foreground">
+                Category {s.number}
               </p>
-              <h2 className="font-display text-[36px] md:text-[42px] leading-tight">{cat.title}</h2>
-              <p className="text-muted-foreground italic mt-3 text-sm md:text-base">{cat.description}</p>
-              <p className="text-gold text-[10px] tracking-[0.25em] uppercase mt-4">Coming Soon</p>
+              <h2 className="font-display text-[34px] md:text-[42px] leading-tight mt-4">
+                {s.title}
+              </h2>
+              <p className="font-sans text-[13px] md:text-[15px] italic text-muted-foreground mt-3">
+                {s.description}
+              </p>
+
+              <div className="mt-10 max-w-[520px] mx-auto md:mx-0 space-y-6">
+                {s.body.map((para, idx) => (
+                  <p
+                    key={idx}
+                    className="font-sans text-[14px] md:text-[16px] leading-[2] text-foreground"
+                  >
+                    {para}
+                  </p>
+                ))}
+              </div>
+
+              <InterestLink category={s.tag} />
             </div>
 
-            <ul className="mt-8">
-              {cat.products.map((p, idx) => (
-                <li
-                  key={idx}
-                  className="store-row flex flex-col md:flex-row md:items-baseline md:justify-between gap-1 md:gap-6 px-2 md:px-3 py-5 border-b transition-colors"
-                  style={{ borderColor: "var(--store-row-border)" }}
-                >
-                  <span className="font-sans text-[13px] md:text-[15px] text-foreground">
-                    {p.name}
-                  </span>
-                  <span className="text-[11px] md:text-[13px] italic text-muted-foreground md:text-right md:max-w-md">
-                    {p.line}
-                  </span>
-                </li>
-              ))}
-            </ul>
+            {i < sections.length - 1 && (
+              <div
+                className="mx-auto mt-[68px] md:mt-[100px] h-px w-[60%] max-w-[420px]"
+                style={{ background: "rgba(200,169,110,0.2)" }}
+              />
+            )}
+          </section>
+        ))}
+      </div>
 
-            <NotifyForm category={cat.tag} />
-          </div>
-
-          {i < categories.length - 1 && (
-            <div
-              className="absolute left-1/2 -translate-x-1/2 bottom-0 w-[60%] h-px"
-              style={{ background: "rgba(200,169,110,0.2)" }}
-            />
-          )}
-        </section>
-      ))}
+      <section className="px-12 md:px-8 pt-20 pb-8">
+        <div className="max-w-[400px] mx-auto text-center">
+          <p className="font-display italic text-[22px] md:text-[24px] leading-snug">
+            Everything here is coming soon.
+          </p>
+          <p className="font-sans text-[12px] md:text-[14px] text-muted-foreground leading-[1.8] mt-5">
+            If it feels like something you'd want after a long shift, we're probably building it.
+          </p>
+        </div>
+      </section>
     </main>
     <Footer />
   </>
