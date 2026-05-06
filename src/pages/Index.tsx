@@ -31,6 +31,7 @@ const Index = () => {
 
   useEffect(() => {
     document.documentElement.classList.toggle("light", theme === "light");
+    document.body.classList.toggle("light-mode", theme === "light");
     localStorage.setItem("scrubsigns-theme", theme);
   }, [theme]);
 
