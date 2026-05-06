@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ZODIAC, WORDS, SPECIALTIES, fallbackReading, FALLBACK_AFFIRMATION } from "@/lib/scrubsigns";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import NightSky from "@/components/NightSky";
 
 type Step = "sign" | "words" | "specialty" | "reading";
 
@@ -75,8 +76,8 @@ const Index = () => {
 
       {/* HERO */}
       <section className="relative min-h-screen flex flex-col justify-center px-5 md:px-8 pt-24 pb-16 overflow-hidden">
-        <div className="constellation-bg absolute inset-0 opacity-[0.04] pointer-events-none" />
-        <div className="relative max-w-4xl mx-auto w-full text-center">
+        <NightSky />
+        <div className="relative max-w-4xl mx-auto w-full text-center" style={{ zIndex: 1 }}>
           <h1 className="font-display text-5xl md:text-7xl leading-[1.05] tracking-tight fade-up">
             What the <span className="text-gold italic">stars</span> say<br className="hidden md:block" /> about your shift.
           </h1>
@@ -100,22 +101,18 @@ const Index = () => {
           <div className="fade-up">
             <h2 className="font-display text-3xl md:text-4xl text-center mb-10">Pick your sign.</h2>
             <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
-              {ZODIAC.map((z) => {
-                const active = sign === z.name;
-                return (
-                  <button
-                    key={z.name}
-                    onClick={() => { setSign(z.name); setTimeout(() => setStep("words"), 220); }}
-                    className={`beam group relative bg-surface hover:bg-surface-elevated transition-all duration-300 aspect-[4/5] flex flex-col items-center justify-center p-3 border ${
-                      active ? "border-gold gold-glow scale-[1.02]" : "border-border hover:border-gold/40 hover:-translate-y-1"
-                    }`}
-                  >
-                    <span className="text-[40px] text-gold leading-none">{z.glyph}</span>
-                    <span className="font-display text-sm md:text-base mt-2">{z.name}</span>
-                    <span className="text-[11px] text-muted-foreground mt-0.5">{z.dates}</span>
-                  </button>
-                );
-              })}
+              {ZODIAC.map((z) => (
+                <button
+                  key={z.name}
+                  onClick={() => { setSign(z.name); setTimeout(() => setStep("words"), 220); }}
+                  className="zodiac-card group"
+                >
+                  <span className="zodiac-glyph">{z.glyph}</span>
+                  <span className="zodiac-name">{z.name}</span>
+                  <span className="zodiac-dates">{z.dates}</span>
+                  <span className="zodiac-cta">READ MY SIGN</span>
+                </button>
+              ))}
             </div>
           </div>
         )}
