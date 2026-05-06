@@ -19,7 +19,29 @@ const Index = () => {
   const [shareToast, setShareToast] = useState("");
   const [emailInline, setEmailInline] = useState("");
   const [emailInlineDone, setEmailInlineDone] = useState(false);
+  const [theme, setTheme] = useState<"dark" | "light">(() => {
+    if (typeof window === "undefined") return "dark";
+    return (localStorage.getItem("scrubsigns-theme") as "dark" | "light") || "dark";
+  });
+  const [showHint, setShowHint] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return !localStorage.getItem("scrubsigns-hint-seen");
+  });
   const flowRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("light", theme === "light");
+    localStorage.setItem("scrubsigns-theme", theme);
+  }, [theme]);
+
+  useEffect(() => {
+    if (!showHint) return;
+    const t = setTimeout(() => {
+      setShowHint(false);
+      localStorage.setItem("scrubsigns-hint-seen", "1");
+    }, 5000);
+    return () => clearTimeout(t);
+  }, [showHint]);
 
   const source = useMemo(() => {
     const p = new URLSearchParams(window.location.search).get("src");
