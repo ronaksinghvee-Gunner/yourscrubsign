@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +11,8 @@ type Section = {
   description: string;
   tag: CategoryTag;
   body: string[];
+  image: string;
+  imageAlt: string;
 };
 
 const sections: Section[] = [
@@ -19,6 +21,8 @@ const sections: Section[] = [
     title: "Between Shifts",
     description: "For the shifts that don't leave you when you get home.",
     tag: "between-shifts",
+    image: "/assets/between-shifts.jpg",
+    imageAlt: "Between Shifts",
     body: [
       "Things you reach for without thinking.",
       "Something small to hold. Something to slow things down. Something that reminds you you're allowed to leave the day behind.",
@@ -30,6 +34,8 @@ const sections: Section[] = [
     title: "Affirmation Tools",
     description: "Small reminders that meet you where you are.",
     tag: "affirmation-tools",
+    image: "/assets/affirmation-tools.jpg",
+    imageAlt: "Affirmation Tools",
     body: [
       "Not the kind that feel forced.",
       "The kind that sound like something you'd actually say to yourself. On the hard days. On the quiet ones.",
@@ -41,6 +47,8 @@ const sections: Section[] = [
     title: "Wear the Shift",
     description: "Wear what the shift feels like.",
     tag: "wear-the-shift",
+    image: "/assets/wear-the-shift.jpg",
+    imageAlt: "Wear the Shift",
     body: [
       "Things that don't need explaining.",
       "If you know, you know. And if you don't, that's kind of the point.",
@@ -57,6 +65,61 @@ const getSessionId = (): string => {
     sessionStorage.setItem(key, id);
   }
   return id;
+};
+
+const FadeInImage = ({ src, alt }: { src: string; alt: string }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            setVisible(true);
+            obs.disconnect();
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className="store-hero-image mt-12 w-full"
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(20px)",
+        transition: "opacity 600ms ease, transform 600ms ease",
+      }}
+    >
+      <div className="relative w-full overflow-hidden" style={{ borderRadius: 4 }}>
+        <img
+          src={src}
+          alt={alt}
+          loading="lazy"
+          className="block w-full h-[280px] md:h-[420px]"
+          style={{ objectFit: "cover", objectPosition: "center" }}
+        />
+        <div
+          aria-hidden
+          className="store-hero-vignette absolute inset-0 pointer-events-none"
+          style={{ background: "rgba(0,0,0,0.15)" }}
+        />
+        <div
+          aria-hidden
+          className="absolute inset-0 pointer-events-none"
+          style={{ border: "1px solid rgba(200,169,110,0.2)", borderRadius: 4 }}
+        />
+      </div>
+    </div>
+  );
 };
 
 const InterestLink = ({ category }: { category: CategoryTag }) => {
@@ -155,6 +218,8 @@ const Store = () => (
                   </p>
                 ))}
               </div>
+
+              <FadeInImage src={s.image} alt={s.imageAlt} />
 
               <InterestLink category={s.tag} />
             </div>

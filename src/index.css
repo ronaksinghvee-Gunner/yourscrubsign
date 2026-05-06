@@ -389,3 +389,7 @@
   body.light-mode .store-section-b { background-color: #EDE8DC !important; }
   body.light-mode .store-row:hover { background-color: rgba(200,169,110,0.08); }
 }
+
+@layer utilities {
+  body.light-mode .store-hero-vignette { background: transparent !important; }
+}
