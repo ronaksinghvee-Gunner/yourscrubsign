@@ -191,11 +191,14 @@
     cursor: pointer;
   }
   .zodiac-glyph {
-    font-size: 52px;
+    font-size: 56px;
     line-height: 1;
     color: #fff;
-    text-shadow: 0 0 20px rgba(255,255,255,0.6), 0 0 40px rgba(200,150,255,0.3);
-    transition: text-shadow 200ms ease;
+    font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+    /* force text rendering, not emoji */
+    font-variant-emoji: text;
+    text-shadow: 0 0 15px rgba(255,255,255,0.9), 0 0 30px rgba(180,130,255,0.6), 0 0 60px rgba(150,100,255,0.3);
+    transition: text-shadow 200ms ease, color 600ms ease-in-out;
   }
   .zodiac-name {
     font-family: 'Cormorant Garamond', serif;
