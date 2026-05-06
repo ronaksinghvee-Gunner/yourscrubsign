@@ -31,6 +31,7 @@ const Index = () => {
 
   useEffect(() => {
     document.documentElement.classList.toggle("light", theme === "light");
+    document.body.classList.toggle("light-mode", theme === "light");
     localStorage.setItem("scrubsigns-theme", theme);
   }, [theme]);
 
@@ -269,7 +270,7 @@ const Index = () => {
       </section>
 
       {/* EMAIL CAPTURE */}
-      <section style={{ background: "#1A1508" }} className="px-5 md:px-8 py-16 border-y border-border/40">
+      <section data-section="email-capture" style={{ background: "#1A1508" }} className="email-capture-section px-5 md:px-8 py-16 border-y border-border/40">
         <div className="max-w-xl mx-auto text-center">
           <h2 className="font-display text-3xl md:text-4xl">Get yours every morning.</h2>
           <form onSubmit={submitInlineEmail} className="mt-7 flex flex-col sm:flex-row gap-3">

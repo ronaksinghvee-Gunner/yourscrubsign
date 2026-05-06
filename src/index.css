@@ -292,3 +292,84 @@
     animation: starsPulse 2s ease-in-out infinite;
   }
 }
+
+/* =====================================================================
+   LIGHT MODE — global overrides on body.light-mode
+   ===================================================================== */
+@layer utilities {
+  body, section, nav, footer, .zodiac-card, .zodiac-glyph, .zodiac-name,
+  .zodiac-dates, .zodiac-cta, input, button, h1, h2, h3, p, a, span, div, article {
+    transition: background-color 600ms ease-in-out, color 600ms ease-in-out, border-color 600ms ease-in-out, text-shadow 600ms ease-in-out;
+  }
+
+  body.light-mode {
+    background-color: #F5EFE0 !important;
+    background-image: none !important;
+    color: #1A1A2E;
+  }
+  body.light-mode::before { opacity: 0 !important; }
+
+  body.light-mode section { background-color: #F5EFE0; }
+  body.light-mode footer { background-color: #F5EFE0; border-color: rgba(26,26,46,0.12); }
+
+  /* Email capture override (inline style overpowers; use class) */
+  body.light-mode .email-capture-section { background: #E8E0CC !important; border-color: rgba(26,26,46,0.12); }
+
+  /* Surface / cards (utility class .bg-surface used widely) */
+  body.light-mode .bg-surface,
+  body.light-mode .bg-surface-elevated { background-color: #EDE8DC !important; }
+
+  /* Borders */
+  body.light-mode .border-border,
+  body.light-mode [class*="border-border"] { border-color: rgba(26,26,46,0.12) !important; }
+
+  /* Text */
+  body.light-mode,
+  body.light-mode .text-foreground,
+  body.light-mode h1, body.light-mode h2, body.light-mode h3 { color: #1A1A2E; }
+  body.light-mode .text-muted-foreground { color: #4A4A6A !important; }
+  body.light-mode .text-foreground\/90 { color: rgba(26,26,46,0.9); }
+  body.light-mode .text-foreground\/85 { color: rgba(26,26,46,0.85); }
+
+  /* Nav */
+  body.light-mode nav.bg-background\/95,
+  body.light-mode nav[class*="bg-background"] { background-color: rgba(245,239,224,0.97) !important; border-color: rgba(26,26,46,0.12) !important; }
+  body.light-mode nav a, body.light-mode nav button, body.light-mode nav span { color: #1A1A2E; }
+  body.light-mode nav .text-muted-foreground { color: #4A4A6A !important; }
+
+  /* Mobile overlay */
+  body.light-mode .bg-background { background-color: #F5EFE0 !important; }
+
+  /* Inputs */
+  body.light-mode input {
+    background-color: #F5EFE0 !important;
+    border-color: rgba(26,26,46,0.2) !important;
+    color: #1A1A2E !important;
+  }
+  body.light-mode input::placeholder { color: rgba(26,26,46,0.45); }
+
+  /* Zodiac cards */
+  body.light-mode .zodiac-card {
+    background: #EDE8DC;
+    border-color: rgba(26,26,46,0.1);
+  }
+  body.light-mode .zodiac-glyph {
+    color: #1A1A2E;
+    text-shadow: 0 0 15px rgba(100,80,200,0.3);
+  }
+  body.light-mode .zodiac-card:hover .zodiac-glyph {
+    text-shadow: 0 0 25px rgba(100,80,200,0.5), 0 0 50px rgba(200,169,110,0.5);
+  }
+  body.light-mode .zodiac-name { color: #1A1A2E; }
+  body.light-mode .zodiac-dates { color: rgba(26,26,46,0.55); }
+  body.light-mode .zodiac-cta { color: #1A1A2E; border-color: rgba(26,26,46,0.3); }
+  body.light-mode .zodiac-card:hover .zodiac-cta { color: #C8A96E; border-color: #C8A96E; }
+
+  /* Modal backdrop in light mode */
+  body.light-mode .bg-background\/85 { background-color: rgba(245,239,224,0.85) !important; }
+  body.light-mode .bg-background\/60,
+  body.light-mode .bg-background\/40 { background-color: rgba(245,239,224,0.6) !important; }
+
+  /* Keep gold accents intact (no override needed for .text-gold, .bg-gold, .border-gold) */
+}
+
