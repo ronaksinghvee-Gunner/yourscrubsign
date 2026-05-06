@@ -14,7 +14,81 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      daily_readings: {
+        Row: {
+          affirmation: string
+          created_at: string
+          date: string
+          email_subject: string
+          id: string
+          long_reading: string
+          short_reading: string
+          specialty: string
+          specialty_line: string
+          zodiac_sign: string
+        }
+        Insert: {
+          affirmation?: string
+          created_at?: string
+          date: string
+          email_subject?: string
+          id?: string
+          long_reading: string
+          short_reading?: string
+          specialty: string
+          specialty_line: string
+          zodiac_sign: string
+        }
+        Update: {
+          affirmation?: string
+          created_at?: string
+          date?: string
+          email_subject?: string
+          id?: string
+          long_reading?: string
+          short_reading?: string
+          specialty?: string
+          specialty_line?: string
+          zodiac_sign?: string
+        }
+        Relationships: []
+      }
+      subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          first_name: string
+          id: string
+          source: string
+          specialty: string
+          unsubscribed: boolean
+          word_selections: string[]
+          zodiac_sign: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          first_name: string
+          id?: string
+          source?: string
+          specialty: string
+          unsubscribed?: boolean
+          word_selections?: string[]
+          zodiac_sign: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          first_name?: string
+          id?: string
+          source?: string
+          specialty?: string
+          unsubscribed?: boolean
+          word_selections?: string[]
+          zodiac_sign?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
