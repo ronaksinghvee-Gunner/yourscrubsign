@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,65 +6,77 @@
 
 @layer base {
   :root {
-    --background: 240 30% 7%;
-    --foreground: 42 33% 92%;
+    /* Scrub Signs palette — HSL */
+    --background: 240 30% 7%;          /* #0D0D1A */
+    --foreground: 42 27% 92%;          /* #F0EDE6 */
 
-    --surface: 240 32% 12%;
-    --surface-elevated: 240 28% 16%;
+    --surface: 240 36% 12%;            /* #13132A */
+    --surface-elevated: 240 32% 16%;
 
-    --card: 240 32% 12%;
-    --card-foreground: 42 33% 92%;
+    --card: 240 36% 12%;
+    --card-foreground: 42 27% 92%;
 
-    --popover: 240 32% 12%;
-    --popover-foreground: 42 33% 92%;
+    --popover: 240 36% 12%;
+    --popover-foreground: 42 27% 92%;
 
-    --primary: 38 44% 60%;
+    --primary: 38 44% 60%;             /* #C8A96E gold */
     --primary-foreground: 240 30% 7%;
-    --primary-hover: 41 60% 71%;
+    --primary-hover: 41 60% 71%;       /* #E2C98A */
 
-    --secondary: 240 28% 16%;
-    --secondary-foreground: 42 33% 92%;
+    --secondary: 240 32% 16%;
+    --secondary-foreground: 42 27% 92%;
 
-    --muted: 240 20% 20%;
-    --muted-foreground: 240 12% 60%;
+    --muted: 240 18% 22%;
+    --muted-foreground: 240 13% 58%;   /* #8A8AA0 */
 
     --accent: 38 44% 60%;
     --accent-foreground: 240 30% 7%;
 
     --destructive: 0 70% 55%;
-    --destructive-foreground: 42 33% 92%;
+    --destructive-foreground: 42 27% 92%;
 
-    --border: 240 20% 22%;
-    --input: 240 28% 16%;
+    --border: 240 24% 22%;             /* #2A2A45 */
+    --input: 240 32% 16%;
     --ring: 38 44% 60%;
 
     --radius: 2px;
 
     --gold: 38 44% 60%;
+    --gold-hover: 41 60% 71%;
     --gold-soft: 38 44% 60% / 0.12;
-    --gold-glow: 0 0 32px hsl(38 44% 60% / 0.25);
+    --gold-glow: 0 0 32px hsl(38 44% 60% / 0.22);
   }
 }
 
 @layer base {
   * { @apply border-border; }
-  html, body, #root { height: 100%; }
+  html, body, #root { min-height: 100%; }
+  html { scroll-behavior: smooth; }
   body {
     @apply bg-background text-foreground;
     font-family: 'IBM Plex Sans', system-ui, sans-serif;
     font-weight: 300;
     letter-spacing: 0.005em;
+    background-color: hsl(var(--background));
     background-image:
-      radial-gradient(ellipse at 20% 10%, hsl(38 44% 60% / 0.04), transparent 50%),
-      radial-gradient(ellipse at 80% 90%, hsl(260 50% 30% / 0.08), transparent 50%);
+      radial-gradient(1px 1px at 12% 18%, hsl(42 27% 92% / 0.35), transparent 50%),
+      radial-gradient(1px 1px at 82% 24%, hsl(42 27% 92% / 0.3), transparent 50%),
+      radial-gradient(1px 1px at 28% 72%, hsl(42 27% 92% / 0.25), transparent 50%),
+      radial-gradient(1px 1px at 64% 88%, hsl(42 27% 92% / 0.3), transparent 50%),
+      radial-gradient(1.5px 1.5px at 48% 38%, hsl(42 27% 92% / 0.25), transparent 50%),
+      radial-gradient(1px 1px at 92% 62%, hsl(42 27% 92% / 0.3), transparent 50%),
+      radial-gradient(1px 1px at 6% 54%, hsl(42 27% 92% / 0.25), transparent 50%),
+      radial-gradient(ellipse at 20% 0%, hsl(38 44% 60% / 0.06), transparent 55%),
+      radial-gradient(ellipse at 100% 100%, hsl(260 50% 30% / 0.10), transparent 60%);
     background-attachment: fixed;
+    background-size: 100% 100%;
     position: relative;
   }
   body::before {
     content: '';
     position: fixed; inset: 0;
     pointer-events: none;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
     opacity: 0.04;
     z-index: 1;
     mix-blend-mode: overlay;
@@ -81,29 +93,85 @@
 @layer utilities {
   .font-display { font-family: 'Cormorant Garamond', serif; }
   .text-gold { color: hsl(var(--gold)); }
+  .text-gold-hover:hover { color: hsl(var(--gold-hover)); }
   .border-gold { border-color: hsl(var(--gold)); }
   .bg-surface { background-color: hsl(var(--surface)); }
   .bg-surface-elevated { background-color: hsl(var(--surface-elevated)); }
+  .bg-gold { background-color: hsl(var(--gold)); }
+  .hover\:bg-gold-hover:hover { background-color: hsl(var(--gold-hover)); }
 
   .gold-glow { box-shadow: var(--gold-glow); }
 
   .fade-in { animation: fadeIn 500ms ease-out both; }
   .fade-up { animation: fadeUp 600ms ease-out both; }
-  .slide-in { animation: slideIn 400ms ease-out both; }
+  .slide-in-r { animation: slideInR 350ms ease-out both; }
 
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: translateY(0); }
   }
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateX(20px); }
+  @keyframes slideInR {
+    from { opacity: 0; transform: translateX(24px); }
     to { opacity: 1; transform: translateX(0); }
   }
 
   .stagger-1 { animation-delay: 100ms; }
-  .stagger-2 { animation-delay: 250ms; }
-  .stagger-3 { animation-delay: 400ms; }
-  .stagger-4 { animation-delay: 600ms; }
-  .stagger-5 { animation-delay: 800ms; }
+  .stagger-2 { animation-delay: 300ms; }
+  .stagger-3 { animation-delay: 500ms; }
+  .stagger-4 { animation-delay: 700ms; }
+  .stagger-5 { animation-delay: 900ms; }
+  .stagger-6 { animation-delay: 1100ms; }
+
+  /* Constellation faint background (hero) */
+  .constellation-bg {
+    background-image:
+      radial-gradient(1px 1px at 10% 20%, hsl(42 27% 92% / 0.5), transparent 50%),
+      radial-gradient(1px 1px at 30% 50%, hsl(42 27% 92% / 0.5), transparent 50%),
+      radial-gradient(1px 1px at 55% 25%, hsl(42 27% 92% / 0.4), transparent 50%),
+      radial-gradient(1px 1px at 75% 60%, hsl(42 27% 92% / 0.5), transparent 50%),
+      radial-gradient(1px 1px at 90% 35%, hsl(42 27% 92% / 0.4), transparent 50%),
+      linear-gradient(115deg, transparent 49.85%, hsl(var(--gold) / 0.04) 50%, transparent 50.15%),
+      linear-gradient(60deg, transparent 49.85%, hsl(var(--gold) / 0.04) 50%, transparent 50.15%);
+  }
+
+  /* Border beam — gold light traveling around edge */
+  .beam {
+    position: relative;
+    isolation: isolate;
+  }
+  .beam::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: conic-gradient(from var(--beam-angle, 0deg),
+      transparent 0deg,
+      transparent 300deg,
+      hsl(var(--gold) / 0.9) 340deg,
+      hsl(var(--gold-hover) / 1) 350deg,
+      hsl(var(--gold) / 0.9) 360deg);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    animation: beamSpin 5s linear infinite;
+    pointer-events: none;
+    opacity: 0.85;
+  }
+  @property --beam-angle {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+  }
+  @keyframes beamSpin {
+    to { --beam-angle: 360deg; }
+  }
+  /* Fallback for browsers without @property — just rotate via custom keyframes */
+  @supports not (background: conic-gradient(from 0deg, red, red)) {
+    .beam::before { animation: none; }
+  }
+
+  .beam-slow::before { animation-duration: 8s; }
 }
