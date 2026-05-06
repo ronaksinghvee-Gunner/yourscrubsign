@@ -57,20 +57,23 @@ export type Database = {
         Row: {
           category: string
           created_at: string
-          email: string
+          email: string | null
           id: string
+          session_id: string | null
         }
         Insert: {
           category: string
           created_at?: string
-          email: string
+          email?: string | null
           id?: string
+          session_id?: string | null
         }
         Update: {
           category?: string
           created_at?: string
-          email?: string
+          email?: string | null
           id?: string
+          session_id?: string | null
         }
         Relationships: []
       }
