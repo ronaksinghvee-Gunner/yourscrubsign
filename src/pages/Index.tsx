@@ -268,6 +268,31 @@ const Index = () => {
         )}
       </section>
 
+      {/* EMAIL CAPTURE */}
+      <section style={{ background: "#1A1508" }} className="px-5 md:px-8 py-16 border-y border-border/40">
+        <div className="max-w-xl mx-auto text-center">
+          <h2 className="font-display text-3xl md:text-4xl">Get yours every morning.</h2>
+          <form onSubmit={submitInlineEmail} className="mt-7 flex flex-col sm:flex-row gap-3">
+            <input
+              type="email"
+              value={emailInline}
+              onChange={(e) => setEmailInline(e.target.value)}
+              placeholder="you@email.com"
+              className="flex-1 bg-background/60 border border-border px-4 py-3 text-sm rounded-full focus:outline-none focus:border-gold"
+            />
+            <button
+              type="submit"
+              className="beam relative px-7 py-3 rounded-full bg-gold text-primary-foreground hover:bg-gold-hover transition text-sm tracking-wide"
+            >
+              I'm in
+            </button>
+          </form>
+          {emailInlineDone && (
+            <p className="mt-4 text-gold/90 italic text-sm">Your reading lands tomorrow morning.</p>
+          )}
+        </div>
+      </section>
+
       {/* ABOUT STRIP */}
       <section className="bg-surface py-20 px-5 md:px-8 border-y border-border/40">
         <div className="max-w-2xl mx-auto text-center">
@@ -302,31 +327,6 @@ const Index = () => {
               </div>
             </div>
           ))}
-        </div>
-      </section>
-
-      {/* EMAIL CAPTURE */}
-      <section style={{ background: "#1A1508" }} className="px-5 md:px-8 py-16 border-y border-border/40">
-        <div className="max-w-xl mx-auto text-center">
-          <h2 className="font-display text-3xl md:text-4xl">Get yours every morning.</h2>
-          <form onSubmit={submitInlineEmail} className="mt-7 flex flex-col sm:flex-row gap-3">
-            <input
-              type="email"
-              value={emailInline}
-              onChange={(e) => setEmailInline(e.target.value)}
-              placeholder="you@email.com"
-              className="flex-1 bg-background/60 border border-border px-4 py-3 text-sm rounded-full focus:outline-none focus:border-gold"
-            />
-            <button
-              type="submit"
-              className="beam relative px-7 py-3 rounded-full bg-gold text-primary-foreground hover:bg-gold-hover transition text-sm tracking-wide"
-            >
-              I'm in
-            </button>
-          </form>
-          {emailInlineDone && (
-            <p className="mt-4 text-gold/90 italic text-sm">Your reading lands tomorrow morning.</p>
-          )}
         </div>
       </section>
 
