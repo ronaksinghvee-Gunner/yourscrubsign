@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
@@ -163,6 +163,8 @@ const Store = () => (
                   </p>
                 ))}
               </div>
+
+              <FadeInImage src={s.image} alt={s.imageAlt} />
 
               <InterestLink category={s.tag} />
             </div>
