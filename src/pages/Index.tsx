@@ -312,7 +312,6 @@ const Index = () => {
         <div className="text-center mb-10">
           <h2 className="font-display text-3xl md:text-4xl">The Scrub Signs Shop</h2>
         </div>
-философia
         <div className="flex md:grid md:grid-cols-3 gap-4 overflow-x-auto md:overflow-visible -mx-5 px-5 md:mx-0 md:px-0 snap-x snap-mandatory">
           {[
             { t: "Between Shifts", l: "For the shifts that don't leave you when you get home.", h: "between-shifts" },
