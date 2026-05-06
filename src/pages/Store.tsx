@@ -67,6 +67,61 @@ const getSessionId = (): string => {
   return id;
 };
 
+const FadeInImage = ({ src, alt }: { src: string; alt: string }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            setVisible(true);
+            obs.disconnect();
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className="store-hero-image mt-12 w-full"
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(20px)",
+        transition: "opacity 600ms ease, transform 600ms ease",
+      }}
+    >
+      <div className="relative w-full overflow-hidden" style={{ borderRadius: 4 }}>
+        <img
+          src={src}
+          alt={alt}
+          loading="lazy"
+          className="block w-full h-[280px] md:h-[420px]"
+          style={{ objectFit: "cover", objectPosition: "center" }}
+        />
+        <div
+          aria-hidden
+          className="store-hero-vignette absolute inset-0 pointer-events-none"
+          style={{ background: "rgba(0,0,0,0.15)" }}
+        />
+        <div
+          aria-hidden
+          className="absolute inset-0 pointer-events-none"
+          style={{ border: "1px solid rgba(200,169,110,0.2)", borderRadius: 4 }}
+        />
+      </div>
+    </div>
+  );
+};
+
 const InterestLink = ({ category }: { category: CategoryTag }) => {
   const flagKey = `scrubsigns-interest-${category}`;
   const [noted, setNoted] = useState(false);
