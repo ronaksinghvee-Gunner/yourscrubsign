@@ -230,10 +230,64 @@
     transform: translateY(-4px);
   }
   .zodiac-card:hover .zodiac-glyph {
-    text-shadow: 0 0 30px rgba(255,255,255,0.9), 0 0 60px rgba(200,150,255,0.5);
+    text-shadow: 0 0 25px rgba(255,255,255,1.0), 0 0 50px rgba(200,169,110,0.7);
   }
   .zodiac-card:hover .zodiac-cta {
     border-color: #C8A96E;
     color: #C8A96E;
+  }
+
+  /* Light mode overrides */
+  body, nav, section, .zodiac-card, .zodiac-glyph, .zodiac-name, .zodiac-dates, .zodiac-cta {
+    transition: background-color 600ms ease-in-out, color 600ms ease-in-out, border-color 600ms ease-in-out;
+  }
+  html.light {
+    --background: 42 45% 92%;          /* #F5EFE0 */
+    --foreground: 232 28% 14%;         /* #1A1A2E */
+    --surface: 42 30% 89%;             /* #EDE8DC */
+    --surface-elevated: 42 30% 86%;
+    --card: 42 30% 89%;
+    --card-foreground: 232 28% 14%;
+    --popover: 42 30% 89%;
+    --popover-foreground: 232 28% 14%;
+    --muted: 42 20% 80%;
+    --muted-foreground: 232 15% 35%;
+    --border: 232 28% 14% / 0.1;
+    --input: 42 30% 86%;
+    --secondary: 42 30% 86%;
+    --secondary-foreground: 232 28% 14%;
+  }
+  html.light body {
+    background-color: #F5EFE0;
+    background-image: none;
+  }
+  html.light body::before { opacity: 0; }
+  html.light .zodiac-card {
+    background: #EDE8DC;
+    border-color: rgba(26,26,46,0.1);
+  }
+  html.light .zodiac-glyph {
+    color: #1A1A2E;
+    text-shadow: 0 0 15px rgba(100,80,200,0.4);
+  }
+  html.light .zodiac-card:hover .zodiac-glyph {
+    text-shadow: 0 0 25px rgba(100,80,200,0.6), 0 0 50px rgba(200,169,110,0.5);
+  }
+  html.light .zodiac-name { color: #1A1A2E; }
+  html.light .zodiac-dates { color: rgba(26,26,46,0.55); }
+  html.light .zodiac-cta { color: #1A1A2E; border-color: rgba(26,26,46,0.3); }
+
+  /* Stars toggle pulse */
+  @keyframes starsPulse {
+    0%, 100% { text-decoration-color: hsl(var(--gold) / 0.4); }
+    50% { text-decoration-color: hsl(var(--gold) / 1); }
+  }
+  .stars-toggle {
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 6px;
+    text-decoration-color: hsl(var(--gold) / 0.6);
+    animation: starsPulse 2s ease-in-out infinite;
   }
 }
