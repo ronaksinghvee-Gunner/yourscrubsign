@@ -101,22 +101,18 @@ const Index = () => {
           <div className="fade-up">
             <h2 className="font-display text-3xl md:text-4xl text-center mb-10">Pick your sign.</h2>
             <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
-              {ZODIAC.map((z) => {
-                const active = sign === z.name;
-                return (
-                  <button
-                    key={z.name}
-                    onClick={() => { setSign(z.name); setTimeout(() => setStep("words"), 220); }}
-                    className={`beam group relative bg-surface hover:bg-surface-elevated transition-all duration-300 aspect-[4/5] flex flex-col items-center justify-center p-3 border ${
-                      active ? "border-gold gold-glow scale-[1.02]" : "border-border hover:border-gold/40 hover:-translate-y-1"
-                    }`}
-                  >
-                    <span className="text-[40px] text-gold leading-none">{z.glyph}</span>
-                    <span className="font-display text-sm md:text-base mt-2">{z.name}</span>
-                    <span className="text-[11px] text-muted-foreground mt-0.5">{z.dates}</span>
-                  </button>
-                );
-              })}
+              {ZODIAC.map((z) => (
+                <button
+                  key={z.name}
+                  onClick={() => { setSign(z.name); setTimeout(() => setStep("words"), 220); }}
+                  className="zodiac-card group"
+                >
+                  <span className="zodiac-glyph">{z.glyph}</span>
+                  <span className="zodiac-name">{z.name}</span>
+                  <span className="zodiac-dates">{z.dates}</span>
+                  <span className="zodiac-cta">READ MY SIGN</span>
+                </button>
+              ))}
             </div>
           </div>
         )}
