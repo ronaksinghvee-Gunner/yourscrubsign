@@ -259,6 +259,7 @@ const Store = () => {
     </main>
     <Footer />
   </>
-);
+  );
+};
 
 export default Store;
