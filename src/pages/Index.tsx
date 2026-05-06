@@ -19,7 +19,29 @@ const Index = () => {
   const [shareToast, setShareToast] = useState("");
   const [emailInline, setEmailInline] = useState("");
   const [emailInlineDone, setEmailInlineDone] = useState(false);
+  const [theme, setTheme] = useState<"dark" | "light">(() => {
+    if (typeof window === "undefined") return "dark";
+    return (localStorage.getItem("scrubsigns-theme") as "dark" | "light") || "dark";
+  });
+  const [showHint, setShowHint] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return !localStorage.getItem("scrubsigns-hint-seen");
+  });
   const flowRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("light", theme === "light");
+    localStorage.setItem("scrubsigns-theme", theme);
+  }, [theme]);
+
+  useEffect(() => {
+    if (!showHint) return;
+    const t = setTimeout(() => {
+      setShowHint(false);
+      localStorage.setItem("scrubsigns-hint-seen", "1");
+    }, 5000);
+    return () => clearTimeout(t);
+  }, [showHint]);
 
   const source = useMemo(() => {
     const p = new URLSearchParams(window.location.search).get("src");
@@ -76,11 +98,27 @@ const Index = () => {
 
       {/* HERO */}
       <section className="relative min-h-screen flex flex-col justify-center px-5 md:px-8 pt-24 pb-16 overflow-hidden">
-        <NightSky />
+        <NightSky mode={theme} />
         <div className="relative max-w-4xl mx-auto w-full text-center" style={{ zIndex: 1 }}>
           <h1 className="font-display text-5xl md:text-7xl leading-[1.05] tracking-tight fade-up">
-            What the <span className="text-gold italic">stars</span> say<br className="hidden md:block" /> about your shift.
+            What the{" "}
+            <span
+              role="button"
+              tabIndex={0}
+              onClick={() => setTheme((p) => (p === "dark" ? "light" : "dark"))}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setTheme((p) => (p === "dark" ? "light" : "dark")); }}
+              className="text-gold italic stars-toggle"
+              aria-label="Toggle day or night mode"
+            >
+              stars
+            </span>{" "}
+            say<br className="hidden md:block" /> about your shift.
           </h1>
+          {showHint && (
+            <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mt-3 fade-in" style={{ animation: "fadeIn 400ms ease-out both, fadeOut 600ms ease-in 4400ms forwards" }}>
+              tap to toggle
+            </p>
+          )}
           <p className="text-muted-foreground mt-6 text-base md:text-lg fade-up stagger-1">
             Daily horoscopes for nurses. Written like one.
           </p>
@@ -107,10 +145,10 @@ const Index = () => {
                   onClick={() => { setSign(z.name); setTimeout(() => setStep("words"), 220); }}
                   className="zodiac-card group"
                 >
-                  <span className="zodiac-glyph">{z.glyph}</span>
+                  <span className="zodiac-glyph">{z.glyph + "\uFE0E"}</span>
                   <span className="zodiac-name">{z.name}</span>
                   <span className="zodiac-dates">{z.dates}</span>
-                  <span className="zodiac-cta">READ MY SIGN</span>
+                  <span className="zodiac-cta">Read today's horoscope</span>
                 </button>
               ))}
             </div>
@@ -230,6 +268,31 @@ const Index = () => {
         )}
       </section>
 
+      {/* EMAIL CAPTURE */}
+      <section style={{ background: "#1A1508" }} className="px-5 md:px-8 py-16 border-y border-border/40">
+        <div className="max-w-xl mx-auto text-center">
+          <h2 className="font-display text-3xl md:text-4xl">Get yours every morning.</h2>
+          <form onSubmit={submitInlineEmail} className="mt-7 flex flex-col sm:flex-row gap-3">
+            <input
+              type="email"
+              value={emailInline}
+              onChange={(e) => setEmailInline(e.target.value)}
+              placeholder="you@email.com"
+              className="flex-1 bg-background/60 border border-border px-4 py-3 text-sm rounded-full focus:outline-none focus:border-gold"
+            />
+            <button
+              type="submit"
+              className="beam relative px-7 py-3 rounded-full bg-gold text-primary-foreground hover:bg-gold-hover transition text-sm tracking-wide"
+            >
+              I'm in
+            </button>
+          </form>
+          {emailInlineDone && (
+            <p className="mt-4 text-gold/90 italic text-sm">Your reading lands tomorrow morning.</p>
+          )}
+        </div>
+      </section>
+
       {/* ABOUT STRIP */}
       <section className="bg-surface py-20 px-5 md:px-8 border-y border-border/40">
         <div className="max-w-2xl mx-auto text-center">
@@ -264,31 +327,6 @@ const Index = () => {
               </div>
             </div>
           ))}
-        </div>
-      </section>
-
-      {/* EMAIL CAPTURE */}
-      <section style={{ background: "#1A1508" }} className="px-5 md:px-8 py-16 border-y border-border/40">
-        <div className="max-w-xl mx-auto text-center">
-          <h2 className="font-display text-3xl md:text-4xl">Get yours every morning.</h2>
-          <form onSubmit={submitInlineEmail} className="mt-7 flex flex-col sm:flex-row gap-3">
-            <input
-              type="email"
-              value={emailInline}
-              onChange={(e) => setEmailInline(e.target.value)}
-              placeholder="you@email.com"
-              className="flex-1 bg-background/60 border border-border px-4 py-3 text-sm rounded-full focus:outline-none focus:border-gold"
-            />
-            <button
-              type="submit"
-              className="beam relative px-7 py-3 rounded-full bg-gold text-primary-foreground hover:bg-gold-hover transition text-sm tracking-wide"
-            >
-              I'm in
-            </button>
-          </form>
-          {emailInlineDone && (
-            <p className="mt-4 text-gold/90 italic text-sm">Your reading lands tomorrow morning.</p>
-          )}
         </div>
       </section>
 
