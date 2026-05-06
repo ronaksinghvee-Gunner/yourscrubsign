@@ -145,10 +145,10 @@ const Index = () => {
                   onClick={() => { setSign(z.name); setTimeout(() => setStep("words"), 220); }}
                   className="zodiac-card group"
                 >
-                  <span className="zodiac-glyph">{z.glyph}</span>
+                  <span className="zodiac-glyph">{z.glyph + "\uFE0E"}</span>
                   <span className="zodiac-name">{z.name}</span>
                   <span className="zodiac-dates">{z.dates}</span>
-                  <span className="zodiac-cta">READ MY SIGN</span>
+                  <span className="zodiac-cta">Read today's horoscope</span>
                 </button>
               ))}
             </div>
