@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { ZODIAC, WORDS, SPECIALTIES, fallbackReading, FALLBACK_AFFIRMATION } from "@/lib/scrubsigns";
 import Nav from "@/components/Nav";
