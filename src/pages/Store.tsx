@@ -11,6 +11,8 @@ type Section = {
   description: string;
   tag: CategoryTag;
   body: string[];
+  image: string;
+  imageAlt: string;
 };
 
 const sections: Section[] = [
