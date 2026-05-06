@@ -21,6 +21,8 @@ const sections: Section[] = [
     title: "Between Shifts",
     description: "For the shifts that don't leave you when you get home.",
     tag: "between-shifts",
+    image: "/assets/between-shifts.jpg",
+    imageAlt: "Between Shifts",
     body: [
       "Things you reach for without thinking.",
       "Something small to hold. Something to slow things down. Something that reminds you you're allowed to leave the day behind.",
@@ -32,6 +34,8 @@ const sections: Section[] = [
     title: "Affirmation Tools",
     description: "Small reminders that meet you where you are.",
     tag: "affirmation-tools",
+    image: "/assets/affirmation-tools.jpg",
+    imageAlt: "Affirmation Tools",
     body: [
       "Not the kind that feel forced.",
       "The kind that sound like something you'd actually say to yourself. On the hard days. On the quiet ones.",
@@ -43,6 +47,8 @@ const sections: Section[] = [
     title: "Wear the Shift",
     description: "Wear what the shift feels like.",
     tag: "wear-the-shift",
+    image: "/assets/wear-the-shift.jpg",
+    imageAlt: "Wear the Shift",
     body: [
       "Things that don't need explaining.",
       "If you know, you know. And if you don't, that's kind of the point.",
