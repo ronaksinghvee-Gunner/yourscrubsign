@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
@@ -171,7 +172,17 @@ const InterestLink = ({ category }: { category: CategoryTag }) => {
   );
 };
 
-const Store = () => (
+const Store = () => {
+  const { hash } = useLocation();
+  useEffect(() => {
+    if (!hash) return;
+    const id = hash.replace("#", "");
+    const t = setTimeout(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+    return () => clearTimeout(t);
+  }, [hash]);
+  return (
   <>
     <Nav />
     <main className="pt-32 pb-24">
@@ -195,7 +206,8 @@ const Store = () => (
         {sections.map((s, i) => (
           <section
             key={s.tag}
-            className={`store-section ${i % 2 === 0 ? "store-section-a" : "store-section-b"} px-12 md:px-8 py-[68px] md:py-[100px]`}
+            id={s.tag}
+            className={`store-section ${i % 2 === 0 ? "store-section-a" : "store-section-b"} px-12 md:px-8 py-[68px] md:py-[100px] scroll-mt-24`}
           >
             <div className="max-w-[680px] mx-auto text-center md:text-left">
               <p className="font-sans text-[10px] tracking-[0.2em] uppercase text-muted-foreground">
@@ -247,6 +259,7 @@ const Store = () => (
     </main>
     <Footer />
   </>
-);
+  );
+};
 
 export default Store;

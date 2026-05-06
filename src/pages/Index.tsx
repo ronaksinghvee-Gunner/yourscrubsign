@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { ZODIAC, WORDS, SPECIALTIES, fallbackReading, FALLBACK_AFFIRMATION } from "@/lib/scrubsigns";
 import Nav from "@/components/Nav";
@@ -313,20 +314,22 @@ const Index = () => {
         </div>
         <div className="flex md:grid md:grid-cols-3 gap-4 overflow-x-auto md:overflow-visible -mx-5 px-5 md:mx-0 md:px-0 snap-x snap-mandatory">
           {[
-            { t: "Stones", l: "For grounding between codes." },
-            { t: "Merch", l: "Wear the shift." },
-            { t: "Affirmation Tools", l: "Things that help." },
+            { t: "Between Shifts", l: "For the shifts that don't leave you when you get home.", h: "between-shifts" },
+            { t: "Affirmation Tools", l: "Small reminders that meet you where you are.", h: "affirmation-tools" },
+            { t: "Wear the Shift", l: "Wear what the shift feels like.", h: "wear-the-shift" },
           ].map((c) => (
-            <div
+            <Link
               key={c.t}
-              className="beam relative bg-surface border border-border p-7 min-w-[80%] md:min-w-0 snap-center flex flex-col justify-between min-h-[180px]"
+              to={`/store#${c.h}`}
+              className="group beam relative bg-surface border border-border p-7 min-w-[80%] md:min-w-0 snap-center flex flex-col justify-between min-h-[180px] cursor-pointer transition-all duration-200 hover:-translate-y-[3px] hover:border-gold/50 hover:shadow-[0_0_24px_-8px_rgba(200,169,110,0.5)]"
             >
               <span className="text-[10px] uppercase tracking-[0.2em] text-gold/80">Coming soon</span>
               <div>
                 <h3 className="font-display text-2xl mt-2">{c.t}</h3>
                 <p className="text-muted-foreground italic text-sm mt-1.5">{c.l}</p>
               </div>
-            </div>
+              <span aria-hidden className="absolute bottom-4 right-5 text-gold text-lg opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-200">→</span>
+            </Link>
           ))}
         </div>
       </section>
