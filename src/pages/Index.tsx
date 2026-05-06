@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ZODIAC, WORDS, SPECIALTIES, fallbackReading, FALLBACK_AFFIRMATION } from "@/lib/scrubsigns";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import NightSky from "@/components/NightSky";
 
 type Step = "sign" | "words" | "specialty" | "reading";
 
