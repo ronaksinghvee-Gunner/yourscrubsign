@@ -1,16 +1,16 @@
 export const ZODIAC = [
-  { name: "Aries", glyph: "♈" },
-  { name: "Taurus", glyph: "♉" },
-  { name: "Gemini", glyph: "♊" },
-  { name: "Cancer", glyph: "♋" },
-  { name: "Leo", glyph: "♌" },
-  { name: "Virgo", glyph: "♍" },
-  { name: "Libra", glyph: "♎" },
-  { name: "Scorpio", glyph: "♏" },
-  { name: "Sagittarius", glyph: "♐" },
-  { name: "Capricorn", glyph: "♑" },
-  { name: "Aquarius", glyph: "♒" },
-  { name: "Pisces", glyph: "♓" },
+  { name: "Aries", glyph: "♈", dates: "Mar 21 – Apr 19" },
+  { name: "Taurus", glyph: "♉", dates: "Apr 20 – May 20" },
+  { name: "Gemini", glyph: "♊", dates: "May 21 – Jun 20" },
+  { name: "Cancer", glyph: "♋", dates: "Jun 21 – Jul 22" },
+  { name: "Leo", glyph: "♌", dates: "Jul 23 – Aug 22" },
+  { name: "Virgo", glyph: "♍", dates: "Aug 23 – Sep 22" },
+  { name: "Libra", glyph: "♎", dates: "Sep 23 – Oct 22" },
+  { name: "Scorpio", glyph: "♏", dates: "Oct 23 – Nov 21" },
+  { name: "Sagittarius", glyph: "♐", dates: "Nov 22 – Dec 21" },
+  { name: "Capricorn", glyph: "♑", dates: "Dec 22 – Jan 19" },
+  { name: "Aquarius", glyph: "♒", dates: "Jan 20 – Feb 18" },
+  { name: "Pisces", glyph: "♓", dates: "Feb 19 – Mar 20" },
 ] as const;
 
 export const WORDS = [
