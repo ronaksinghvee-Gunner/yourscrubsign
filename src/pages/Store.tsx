@@ -195,7 +195,8 @@ const Store = () => (
         {sections.map((s, i) => (
           <section
             key={s.tag}
-            className={`store-section ${i % 2 === 0 ? "store-section-a" : "store-section-b"} px-12 md:px-8 py-[68px] md:py-[100px]`}
+            id={s.tag}
+            className={`store-section ${i % 2 === 0 ? "store-section-a" : "store-section-b"} px-12 md:px-8 py-[68px] md:py-[100px] scroll-mt-24`}
           >
             <div className="max-w-[680px] mx-auto text-center md:text-left">
               <p className="font-sans text-[10px] tracking-[0.2em] uppercase text-muted-foreground">
