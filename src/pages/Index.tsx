@@ -1,413 +1,80 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { ZODIAC, WORDS, SPECIALTIES, fallbackReading, FALLBACK_AFFIRMATION } from "@/lib/scrubsigns";
-import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
-import NightSky from "@/components/NightSky";
-
-type Step = "sign" | "words" | "specialty" | "reading";
-
-const Index = () => {
-  const [step, setStep] = useState<Step>("sign");
-  const [sign, setSign] = useState<string>("");
-  const [words, setWords] = useState<string[]>([]);
-  const [specialty, setSpecialty] = useState<string>("");
-  const [reading, setReading] = useState<{ long: string; line: string; affirmation: string } | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [confirmed, setConfirmed] = useState(false);
-  const [shareToast, setShareToast] = useState("");
-  const [emailInline, setEmailInline] = useState("");
-  const [emailInlineDone, setEmailInlineDone] = useState(false);
-  const [theme, setTheme] = useState<"dark" | "light">(() => {
-    if (typeof window === "undefined") return "dark";
-    return (localStorage.getItem("scrubsigns-theme") as "dark" | "light") || "dark";
-  });
-  const [showHint, setShowHint] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return !localStorage.getItem("scrubsigns-hint-seen");
-  });
-  const flowRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("light", theme === "light");
-    document.body.classList.toggle("light-mode", theme === "light");
-    localStorage.setItem("scrubsigns-theme", theme);
-  }, [theme]);
-
-  useEffect(() => {
-    if (!showHint) return;
-    const t = setTimeout(() => {
-      setShowHint(false);
-      localStorage.setItem("scrubsigns-hint-seen", "1");
-    }, 5000);
-    return () => clearTimeout(t);
-  }, [showHint]);
-
-  const source = useMemo(() => {
-    const p = new URLSearchParams(window.location.search).get("src");
-    return p?.slice(0, 80) || "direct";
-  }, []);
-
-  useEffect(() => {
-    if (step !== "reading" || !sign || !specialty) return;
-    setLoading(true);
-    const today = new Date().toISOString().slice(0, 10);
-    (async () => {
-      const { data } = await supabase
-        .from("daily_readings")
-        .select("long_reading,specialty_line,affirmation,specialty")
-        .eq("date", today)
-        .eq("zodiac_sign", sign);
-      const match = data?.find((r) => r.specialty === specialty) || data?.[0];
-      if (match) {
-        setReading({ long: match.long_reading, line: match.specialty_line, affirmation: match.affirmation || FALLBACK_AFFIRMATION });
-      } else {
-        const fb = fallbackReading(sign, specialty);
-        setReading({ long: fb.long_reading, line: fb.specialty_line, affirmation: fb.affirmation });
-      }
-      setLoading(false);
-    })();
-  }, [step, sign, specialty]);
-
-  const toggleWord = (w: string) =>
-    setWords((p) => (p.includes(w) ? p.filter((x) => x !== w) : p.length >= 3 ? p : [...p, w]));
-
-  const scrollToFlow = () => {
-    setTimeout(() => flowRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
-  };
-
-  const handleShare = async () => {
-    const url = window.location.origin;
-    const text = `My Scrub Signs reading. Read yours.`;
-    if (navigator.share) {
-      try { await navigator.share({ title: "Scrub Signs", text, url }); return; } catch { /* */ }
-    }
-    try { await navigator.clipboard.writeText(url); setShareToast("Link copied."); setTimeout(() => setShareToast(""), 2400); } catch { /* */ }
-  };
-
-  const submitInlineEmail = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(emailInline)) return;
-    // Open modal pre-filled — we still need first name + sign info
-    setShowModal(true);
-  };
-
-  return (
-    <>
-      <Nav />
-
-      {/* HERO */}
-      <section className="relative min-h-screen flex flex-col justify-center px-5 md:px-8 pt-24 pb-16 overflow-hidden">
-        <NightSky mode={theme} />
-        <div className="relative max-w-4xl mx-auto w-full text-center" style={{ zIndex: 1 }}>
-          <h1 className="font-display text-5xl md:text-7xl leading-[1.05] tracking-tight fade-up">
-            What the{" "}
-            <span
-              role="button"
-              tabIndex={0}
-              onClick={() => setTheme((p) => (p === "dark" ? "light" : "dark"))}
-              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setTheme((p) => (p === "dark" ? "light" : "dark")); }}
-              className="text-gold italic stars-toggle"
-              aria-label="Toggle day or night mode"
-            >
-              stars
-            </span>{" "}
-            say<br className="hidden md:block" /> about your shift.
-          </h1>
-          {showHint && (
-            <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mt-3 fade-in" style={{ animation: "fadeIn 400ms ease-out both, fadeOut 600ms ease-in 4400ms forwards" }}>
-              tap to toggle
-            </p>
-          )}
-          <p className="text-muted-foreground mt-6 text-base md:text-lg fade-up stagger-1">
-            Daily horoscopes for nurses. Written like one.
-          </p>
-          <div className="mt-10 fade-up stagger-2">
-            <button
-              onClick={scrollToFlow}
-              className="beam relative inline-flex items-center justify-center px-9 py-3.5 rounded-full bg-gold text-primary-foreground text-sm tracking-wide hover:bg-gold-hover transition-colors"
-            >
-              Read today's sign
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* FLOW */}
-      <section ref={flowRef} className="px-5 md:px-8 pb-20 max-w-3xl w-full mx-auto">
-        {step === "sign" && (
-          <div className="fade-up">
-            <h2 className="font-display text-3xl md:text-4xl text-center mb-10">Pick your sign.</h2>
-            <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
-              {ZODIAC.map((z) => (
-                <button
-                  key={z.name}
-                  onClick={() => { setSign(z.name); setTimeout(() => setStep("words"), 220); }}
-                  className="zodiac-card group"
-                >
-                  <span className="zodiac-glyph">{z.glyph + "\uFE0E"}</span>
-                  <span className="zodiac-name">{z.name}</span>
-                  <span className="zodiac-dates">{z.dates}</span>
-                  <span className="zodiac-cta">Read today's horoscope</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {step === "words" && (
-          <div className="slide-in-r">
-            <h2 className="font-display text-3xl md:text-4xl text-center">Before we look at the stars…</h2>
-            <p className="text-center text-muted-foreground mt-3 mb-10 italic">Pick up to 3 that hit.</p>
-            <div className="flex flex-wrap gap-2.5 justify-center max-w-2xl mx-auto">
-              {WORDS.map((w) => {
-                const active = words.includes(w);
-                return (
-                  <button
-                    key={w}
-                    onClick={() => toggleWord(w)}
-                    className={`px-4 py-2.5 text-sm rounded-full border transition-all min-h-[44px] ${
-                      active
-                        ? "border-gold text-foreground bg-[hsl(var(--gold-soft))]"
-                        : "border-border text-muted-foreground hover:border-gold/50 hover:text-foreground"
-                    }`}
-                  >
-                    {w}
-                  </button>
-                );
-              })}
-            </div>
-            <div className="mt-12 flex justify-center">
-              <button
-                onClick={() => setStep("specialty")}
-                disabled={words.length === 0}
-                className="beam relative px-9 py-3.5 rounded-full bg-gold text-primary-foreground hover:bg-gold-hover transition disabled:opacity-30 disabled:cursor-not-allowed text-sm tracking-wide"
-              >
-                Continue
-              </button>
-            </div>
-          </div>
-        )}
-
-        {step === "specialty" && (
-          <div className="slide-in-r">
-            <h2 className="font-display text-3xl md:text-4xl text-center mb-10">What's your unit?</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-xl mx-auto">
-              {SPECIALTIES.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => { setSpecialty(s); setStep("reading"); scrollToFlow(); }}
-                  className="beam relative bg-surface border border-border hover:border-gold/60 transition-all py-7 font-display text-xl hover:bg-surface-elevated hover:-translate-y-1"
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {step === "reading" && (
-          <div className="pt-4">
-            {loading || !reading ? (
-              <p className="text-center text-muted-foreground italic mt-16">Reading the chart…</p>
-            ) : (
-              <article className="max-w-2xl mx-auto">
-                <div className="text-center fade-up">
-                  <div className="text-6xl text-gold leading-none">{ZODIAC.find((z) => z.name === sign)?.glyph}</div>
-                  <h2 className="font-display text-4xl md:text-5xl mt-3">{sign}</h2>
-                </div>
-                <p className="text-center text-muted-foreground italic mt-5 mb-10 fade-up stagger-1">
-                  — {reading.affirmation}
-                </p>
-                <div className="mx-auto w-24 h-px bg-gold/40 mb-10 fade-up stagger-2" />
-                <div className="space-y-5 text-foreground/90 text-[18px] leading-[1.8] fade-up stagger-3">
-                  {reading.long.split(/(?<=[.!?])\s+/).map((s, i) => (
-                    <p key={i} className="fade-up" style={{ animationDelay: `${500 + i * 200}ms` }}>{s}</p>
-                  ))}
-                </div>
-                <div className="my-10 flex items-center gap-4 fade-up stagger-5">
-                  <div className="flex-1 h-px bg-gold/30" />
-                  <span className="text-[11px] text-gold/80 tracking-[0.25em] uppercase">{specialty}</span>
-                  <div className="flex-1 h-px bg-gold/30" />
-                </div>
-                <p className="italic text-foreground/85 text-center fade-up stagger-5">{reading.line}</p>
-
-                <div className="mt-14 grid sm:grid-cols-2 gap-3 fade-up stagger-6">
-                  <button
-                    onClick={handleShare}
-                    className="border border-gold/70 text-gold py-3.5 rounded-full text-sm tracking-wide hover:bg-[hsl(var(--gold-soft))] transition"
-                  >
-                    Send to your group chat
-                  </button>
-                  <button
-                    onClick={() => setShowModal(true)}
-                    className="beam relative py-3.5 rounded-full bg-gold text-primary-foreground hover:bg-gold-hover transition text-sm tracking-wide"
-                  >
-                    Get mine daily
-                  </button>
-                </div>
-
-                {confirmed && (
-                  <p className="mt-8 text-center text-gold/90 italic fade-in">Your reading lands tomorrow morning.</p>
-                )}
-                {shareToast && (
-                  <p className="mt-4 text-center text-muted-foreground text-sm fade-in">{shareToast}</p>
-                )}
-
-                <div className="mt-14 text-center">
-                  <button
-                    onClick={() => { setStep("sign"); setSign(""); setWords([]); setSpecialty(""); setReading(null); scrollToFlow(); }}
-                    className="text-xs uppercase tracking-[0.2em] text-muted-foreground hover:text-gold transition"
-                  >
-                    Start over
-                  </button>
-                </div>
-              </article>
-            )}
-          </div>
-        )}
-      </section>
-
-      {/* EMAIL CAPTURE */}
-      <section data-section="email-capture" style={{ background: "#1A1508" }} className="email-capture-section px-5 md:px-8 py-16 border-y border-border/40">
-        <div className="max-w-xl mx-auto text-center">
-          <h2 className="font-display text-3xl md:text-4xl">Get yours every morning.</h2>
-          <form onSubmit={submitInlineEmail} className="mt-7 flex flex-col sm:flex-row gap-3">
-            <input
-              type="email"
-              value={emailInline}
-              onChange={(e) => setEmailInline(e.target.value)}
-              placeholder="you@email.com"
-              className="flex-1 bg-background/60 border border-border px-4 py-3 text-sm rounded-full focus:outline-none focus:border-gold"
-            />
-            <button
-              type="submit"
-              className="beam relative px-7 py-3 rounded-full bg-gold text-primary-foreground hover:bg-gold-hover transition text-sm tracking-wide"
-            >
-              I'm in
-            </button>
-          </form>
-          {emailInlineDone && (
-            <p className="mt-4 text-gold/90 italic text-sm">Your reading lands tomorrow morning.</p>
-          )}
-        </div>
-      </section>
-
-      {/* ABOUT STRIP */}
-      <section className="bg-surface py-20 px-5 md:px-8 border-y border-border/40">
-        <div className="max-w-2xl mx-auto text-center">
-          <p className="font-display text-2xl md:text-3xl leading-snug">
-            Scrub Signs is the horoscope nobody else was writing.
-          </p>
-          <p className="text-muted-foreground italic mt-4">
-            Built for the night shift. Written like a nurse.
-          </p>
-        </div>
-      </section>
-
-      {/* STORE PREVIEW */}
-      <section className="px-5 md:px-8 py-20 max-w-6xl mx-auto">
-        <div className="text-center mb-10">
-          <h2 className="font-display text-3xl md:text-4xl">The Scrub Signs Shop</h2>
-        </div>
-        <div className="flex md:grid md:grid-cols-3 gap-4 overflow-x-auto md:overflow-visible -mx-5 px-5 md:mx-0 md:px-0 snap-x snap-mandatory">
-          {[
-            { t: "Between Shifts", l: "For the shifts that don't leave you when you get home.", h: "between-shifts" },
-            { t: "Affirmation Tools", l: "Small reminders that meet you where you are.", h: "affirmation-tools" },
-            { t: "Wear the Shift", l: "Wear what the shift feels like.", h: "wear-the-shift" },
-          ].map((c) => (
-            <Link
-              key={c.t}
-              to={`/store#${c.h}`}
-              className="group beam relative bg-surface border border-border p-7 min-w-[80%] md:min-w-0 snap-center flex flex-col justify-between min-h-[180px] cursor-pointer transition-all duration-200 hover:-translate-y-[3px] hover:border-gold/50 hover:shadow-[0_0_24px_-8px_rgba(200,169,110,0.5)]"
-            >
-              <span className="text-[10px] uppercase tracking-[0.2em] text-gold/80">Coming soon</span>
-              <div>
-                <h3 className="font-display text-2xl mt-2">{c.t}</h3>
-                <p className="text-muted-foreground italic text-sm mt-1.5">{c.l}</p>
-              </div>
-              <span aria-hidden className="absolute bottom-4 right-5 text-gold text-lg opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-200">→</span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <Footer />
-
-      {showModal && (
-        <SignupModal
-          sign={sign || "Aries"}
-          specialty={specialty || "ICU"}
-          words={words}
-          source={source}
-          prefillEmail={emailInline}
-          onClose={() => setShowModal(false)}
-          onDone={() => { setShowModal(false); setConfirmed(true); setEmailInlineDone(true); }}
-        />
-      )}
-    </>
-  );
-};
-
-function SignupModal({ sign, specialty, words, source, prefillEmail, onClose, onDone }: {
-  sign: string; specialty: string; words: string[]; source: string; prefillEmail?: string;
-  onClose: () => void; onDone: () => void;
-}) {
-  const [first, setFirst] = useState("");
-  const [email, setEmail] = useState(prefillEmail || "");
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState("");
-
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErr("");
-    if (!first.trim() || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-      setErr("Check your name and email."); return;
-    }
-    setBusy(true);
-    const { error } = await supabase.from("subscribers").insert({
-      first_name: first.trim().slice(0, 80),
-      email: email.trim().toLowerCase().slice(0, 254),
-      zodiac_sign: sign, specialty,
-      word_selections: words, source,
-    });
-    if (error && !String(error.message).toLowerCase().includes("duplicate") && error.code !== "23505") {
-      setBusy(false); setErr("Something went sideways. Try again."); return;
-    }
-    supabase.functions.invoke("send-welcome", { body: { email: email.trim().toLowerCase(), first_name: first.trim() } }).catch(() => { /* */ });
-    onDone();
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-5 fade-in" onClick={onClose}>
-      <div className="absolute inset-0 bg-background/85 backdrop-blur-md" />
-      <form
-        onClick={(e) => e.stopPropagation()}
-        onSubmit={submit}
-        className="beam relative bg-surface border border-border max-w-sm w-full p-8 fade-up rounded-sm"
-      >
-        <h3 className="font-display text-2xl">One more thing.</h3>
-        <p className="text-muted-foreground text-sm mt-1.5 mb-6">We'll send yours every morning.</p>
-        <input
-          value={first} onChange={(e) => setFirst(e.target.value)} placeholder="First name"
-          className="w-full bg-background/40 border border-border px-3.5 py-3 mb-3 text-sm focus:outline-none focus:border-gold rounded-sm"
-        />
-        <input
-          value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="Email"
-          className="w-full bg-background/40 border border-border px-3.5 py-3 mb-4 text-sm focus:outline-none focus:border-gold rounded-sm"
-        />
-        {err && <p className="text-destructive text-xs mb-3">{err}</p>}
-        <button
-          disabled={busy} type="submit"
-          className="w-full py-3.5 rounded-full bg-gold text-primary-foreground hover:bg-gold-hover transition text-sm tracking-wide disabled:opacity-50"
-        >
-          {busy ? "…" : "I'm in."}
-        </button>
-      </form>
+{step === "reading" && (
+  <div className="fixed inset-0 z-40 flex flex-col bg-background overflow-hidden" style={{ top: 0, left: 0, right: 0, bottom: 0 }}>
+    {/* TOP BAR */}
+    <div className="flex items-center justify-between px-5 py-4 flex-shrink-0">
+      <button onClick={() => setStep("words")} className="text-muted-foreground hover:text-foreground transition p-1">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      </button>
+      <div className="flex gap-1.5">
+        {[0,1,2].map(i => <div key={i} className={`rounded-full transition-all ${i === 2 ? "w-5 h-1.5 bg-gold" : "w-1.5 h-1.5 bg-border"}`} />)}
+      </div>
+      <button onClick={() => { setStep("sign"); setSign(""); setWords([]); setSpecialty(""); setReading(null); }} className="text-muted-foreground hover:text-foreground transition p-1">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
     </div>
-  );
-}
 
-export default Index;
+    {loading || !reading ? (
+      <div className="flex-1 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-4xl text-gold animate-pulse mb-3">{ZODIAC.find(z => z.name === sign)?.glyph}</div>
+          <p className="text-muted-foreground italic text-sm">Reading the stars...</p>
+        </div>
+      </div>
+    ) : (
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* SCROLLABLE CONTENT */}
+        <div className="flex-1 overflow-y-auto px-6 pb-4">
+          {/* SIGN SECTION */}
+          <div className="text-center pt-2 pb-6 flex-shrink-0">
+            <div className="text-5xl text-gold leading-none mb-2">{ZODIAC.find(z => z.name === sign)?.glyph + "\uFE0E"}</div>
+            <div className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">{sign}</div>
+            <div className="mx-auto mt-3 w-8 h-px bg-gold/40" />
+          </div>
+
+          {/* READING TEXT - expandable */}
+          <ReadingText long={reading.long} />
+
+          {/* AFFIRMATION */}
+          <p className="italic text-muted-foreground text-sm text-center mt-6 mb-2 leading-relaxed px-2">{reading.affirmation}</p>
+
+          {/* CLOSING LINE */}
+          <p className="text-gold italic text-center text-[15px] font-display mt-3 mb-6">This was written for your next shift.</p>
+
+          {/* SHARE CARD */}
+          <div className="mx-auto max-w-[340px] mb-4 rounded-[4px] border border-gold/20 p-5 text-center" style={{ background: "#0D0D1A" }}>
+            <div className="text-2xl text-gold mb-1">{ZODIAC.find(z => z.name === sign)?.glyph + "\uFE0E"}</div>
+            <div className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground mb-3">{sign}</div>
+            <p className="font-display italic text-[14px] text-foreground/90 leading-relaxed mb-3">{reading.short || reading.long.split(/(?<=[.!?])\s+/).slice(0, 2).join(" ")}</p>
+            <div className="mx-auto w-7 h-px bg-gold/30 mb-2" />
+            <div className="text-[9px] text-muted-foreground/50">scrubsigns.com</div>
+          </div>
+        </div>
+
+        {/* FIXED BOTTOM CTAS */}
+        <div className="flex-shrink-0 px-5 pb-6 pt-3 border-t border-border/30 bg-background">
+          <div className="max-w-sm mx-auto space-y-2.5">
+            <button
+              onClick={handleShare}
+              className="w-full py-3.5 border border-gold/70 text-gold text-xs uppercase tracking-[0.12em] hover:bg-gold/10 transition rounded-[2px]"
+            >
+              Share it
+            </button>
+            <button
+              onClick={() => setShowModal(true)}
+              className="w-full py-3.5 bg-gold text-primary-foreground text-xs uppercase tracking-[0.12em] hover:bg-gold-hover transition rounded-[2px]"
+            >
+              Get mine daily
+            </button>
+            {confirmed && <p className="text-center text-gold/90 italic text-xs pt-1">You're in. See you tomorrow.</p>}
+          </div>
+          <button
+            onClick={() => { setStep("sign"); setSign(""); setWords([]); setSpecialty(""); setReading(null); }}
+            className="block mx-auto mt-3 text-[10px] uppercase tracking-[0.2em] text-muted-foreground/40 hover:text-muted-foreground transition"
+          >
+            ← start over
+          </button>
+        </div>
+      </div>
+    )}
+  </div>
+)}
